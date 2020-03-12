@@ -102,6 +102,18 @@
               return response;
             }
 
+            if (data.dataSourceQuery.selectedModeIdx === 1) {
+              // Add aggregate query options for Summary mode
+              _.set(data, 'dataSourceQuery.query.aggregate', [
+                {
+                  $group: {
+                    _id: '$data.' + data.dataSourceQuery.columns.column,
+                    count: { $sum: 1 }
+                  }
+                }
+              ]);
+            }
+
             return Fliplet.DataSources.fetchWithOptions(data.dataSourceQuery);
           })
           .then(function (result) {
@@ -121,12 +133,14 @@
                 data.columns = [];
                 data.values = [];
                 data.totalEntries = 0;
-                if (!result.dataSource.columns.length) {
-                  return Promise.resolve();
-                }
+
                 switch (data.dataSourceQuery.selectedModeIdx) {
                   case 0:
                   default:
+                    if (!result.dataSource.columns.length) {
+                      return Promise.resolve();
+                    }
+
                     // Plot the data as is
                     data.name = data.dataSourceQuery.columns.value;
                     result.dataSourceEntries.forEach(function (row, i) {
@@ -139,53 +153,13 @@
                     });
                     break;
                   case 1:
-                    // Summarise data
+                    // Summarize data
                     data.name = 'Count of ' + data.dataSourceQuery.columns.column;
-                      result.dataSourceEntries.forEach(function (row) {
-                        var value = row[data.dataSourceQuery.columns.column];
-
-                        if (Array.isArray(value)) {
-                          // Value is an array
-                          value.forEach(function (elem) {
-                            if (typeof elem === 'string') {
-                              elem = $.trim(elem);
-                            }
-
-                            if (!elem) {
-                              return;
-                            }
-
-                            data.entries.push(elem);
-                            if ( data.columns.indexOf(elem) === -1 ) {
-                              data.columns.push(elem);
-                              data.values[data.columns.indexOf(elem)] = 1;
-                            } else {
-                              data.values[data.columns.indexOf(elem)]++;
-                            }
-                          });
-                        } else {
-                          // Value is not an array
-                          if (typeof value === 'string') {
-                            value = $.trim(value);
-                          }
-
-                          if (!value) {
-                            return;
-                          }
-
-                          data.entries.push(value);
-                          if ( data.columns.indexOf(value) === -1 ) {
-                            data.columns.push(value);
-                            data.values[data.columns.indexOf(value)] = 1;
-                          } else {
-                            data.values[data.columns.indexOf(value)]++;
-                          }
-                        }
-                      });
-                      sortData();
-                      // SAVES THE TOTAL NUMBER OF ROW/ENTRIES
-                      data.totalEntries = data.entries.length;
-                      break;
+                    data.columns = _.map(result, '_id');
+                    data.values = _.map(result, 'count');
+                    sortData();
+                    data.totalEntries = _.sum(data.values);
+                    break;
                 }
 
                 return Promise.resolve();
