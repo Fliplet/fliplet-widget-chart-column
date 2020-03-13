@@ -18,6 +18,37 @@
         data.name = '';
       }
 
+      function summarizeData(result) {
+        result.dataSourceEntries.forEach(function (row) {
+          var value = row[data.dataSourceQuery.columns.column];
+
+          if (!Array.isArray(value)) {
+            value = [value];
+          }
+
+          _.forEach(value, function (elem) {
+            if (typeof elem === 'string') {
+              elem = $.trim(elem);
+            }
+
+            if (!elem) {
+              return;
+            }
+
+            data.entries.push(elem);
+
+            if (data.columns.indexOf(elem) === -1) {
+              data.columns.push(elem);
+              data.values[data.columns.indexOf(elem)] = 1;
+            } else {
+              data.values[data.columns.indexOf(elem)]++;
+            }
+          });
+        });
+        sortData();
+        data.totalEntries = data.entries.length;
+      }
+
       function sortData() {
         var sortMethod = 'alphabetical';
         var sortOrder = 'asc';
@@ -102,7 +133,8 @@
               return response;
             }
 
-            if (data.dataSourceQuery.selectedModeIdx === 1) {
+            if (data.dataSourceQuery.selectedModeIdx === 1
+              && _.get(data, 'dataSourceQuery.columns.column', '').indexOf('.') === -1) {
               // Add aggregate query options for Summary mode
               _.set(data, 'dataSourceQuery.query.aggregate', [
                 {
@@ -129,19 +161,16 @@
                 });
               })
               .then(function () {
-                data.entries = [];
-                data.columns = [];
-                data.values = [];
-                data.totalEntries = 0;
+                resetData();
 
                 switch (data.dataSourceQuery.selectedModeIdx) {
                   case 0:
                   default:
+                    // Plot the data as is
                     if (!result.dataSource.columns.length) {
                       return Promise.resolve();
                     }
 
-                    // Plot the data as is
                     data.name = data.dataSourceQuery.columns.value;
                     result.dataSourceEntries.forEach(function (row, i) {
                       if (!row[data.dataSourceQuery.columns.category] && !row[data.dataSourceQuery.columns.value]) {
@@ -155,10 +184,17 @@
                   case 1:
                     // Summarize data
                     data.name = 'Count of ' + data.dataSourceQuery.columns.column;
-                    data.columns = _.map(result, '_id');
-                    data.values = _.map(result, 'count');
-                    sortData();
-                    data.totalEntries = _.sum(data.values);
+
+                    if (_.get(data, 'dataSourceQuery.query.aggregate')) {
+                      data.columns = _.map(result, '_id');
+                      data.values = _.map(result, 'count');
+                      sortData();
+                      data.totalEntries = _.sum(data.values);
+                      break;
+                    }
+
+                    // Aggregate feature isn't used, possibly because the columm name contains a '.'
+                    summarizeData(result);
                     break;
                 }
 
