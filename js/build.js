@@ -176,9 +176,12 @@
                       if (!row[data.dataSourceQuery.columns.category] && !row[data.dataSourceQuery.columns.value]) {
                         return;
                       }
+
+                      var value = parseInt(row[data.dataSourceQuery.columns.value], 10) || 0;
+
                       data.columns.push(row[data.dataSourceQuery.columns.category] || 'Category ' + (i+1));
-                      data.values.push(parseInt(row[data.dataSourceQuery.columns.value]) || 0);
-                      data.totalEntries++;
+                      data.values.push(value);
+                      data.totalEntries += value;
                     });
                     break;
                   case 1:
