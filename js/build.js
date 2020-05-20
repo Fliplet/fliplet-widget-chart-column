@@ -6,9 +6,15 @@
   function init() {
     Fliplet.Widget.instance('chart-column', function (data) {
       var chartId = data.id;
+      var chartUuid = data.uuid;
       var $container = $(this);
       var refreshTimeout = 5000;
       var updateDateFormat = 'hh:mm:ss a';
+      var colors = [
+        '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
+        '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
+      ];
+      var chartInstance;
 
       function resetData() {
         data.entries = [];
@@ -234,17 +240,40 @@
         });
       }
 
+      Fliplet.Studio.onEvent(function(event) {
+        var eventDetail = event.detail;
+
+        if (eventDetail && eventDetail.type === 'colorChange') {
+          // In the label we got a string with a field label and its numeration
+          // For example: 'Chart color 1'
+          // Numeration of the fields start with 1, that is why we decrease it by 1.
+          var colorIndex = eventDetail.label.match(/[0-9]{1,2}/)[0] - 1;
+
+          colors[colorIndex] = eventDetail.color;
+
+          chartInstance.update({
+            colors: colors
+          });
+        }
+      });
+
       function drawChart() {
         return new Promise(function (resolve, reject) {
-          var colors = [
-            '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
-            '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
-          ];
-          colors.forEach(function eachColor (color, index) {
+          var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
+
+          colors.forEach(function eachColor(color, index) {
             if (!Fliplet.Themes) {
               return;
             }
-            colors[index] = Fliplet.Themes.Current.get('chartColor'+(index+1)) || color;
+
+            var colorKey = 'chartColor' + (index + 1);
+            var newColor = customColors
+              ? customColors.values[colorKey]
+              : Fliplet.Themes.Current.get(colorKey);
+            
+            if (newColor) {
+              colors[index] = newColor;
+            }
           });
           var chartOpt = {
             chart: {
@@ -369,7 +398,7 @@
             config: data
           }).then(function () {
             try {
-              new Highcharts.Chart(chartOpt);
+              chartInstance = new Highcharts.Chart(chartOpt);
             } catch (e) {
               return Promise.reject(e);
             }
