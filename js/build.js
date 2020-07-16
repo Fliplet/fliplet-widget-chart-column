@@ -24,6 +24,37 @@
         data.name = '';
       }
 
+      function summarizeData(result) {
+        result.dataSourceEntries.forEach(function (row) {
+          var value = row[data.dataSourceQuery.columns.column];
+
+          if (!Array.isArray(value)) {
+            value = [value];
+          }
+
+          _.forEach(value, function (elem) {
+            if (typeof elem === 'string') {
+              elem = $.trim(elem);
+            }
+
+            if (!elem) {
+              return;
+            }
+
+            data.entries.push(elem);
+
+            if (data.columns.indexOf(elem) === -1) {
+              data.columns.push(elem);
+              data.values[data.columns.indexOf(elem)] = 1;
+            } else {
+              data.values[data.columns.indexOf(elem)]++;
+            }
+          });
+        });
+        sortData();
+        data.totalEntries = data.entries.length;
+      }
+
       function sortData() {
         var sortMethod = 'alphabetical';
         var sortOrder = 'asc';
@@ -108,6 +139,19 @@
               return response;
             }
 
+            if (data.dataSourceQuery.selectedModeIdx === 1
+              && _.get(data, 'dataSourceQuery.columns.column', '').indexOf('.') === -1) {
+              // Add aggregate query options for Summary mode
+              _.set(data, 'dataSourceQuery.query.aggregate', [
+                {
+                  $group: {
+                    _id: '$data.' + data.dataSourceQuery.columns.column,
+                    count: { $sum: 1 }
+                  }
+                }
+              ]);
+            }
+
             return Fliplet.DataSources.fetchWithOptions(data.dataSourceQuery);
           })
           .then(function (result) {
@@ -123,75 +167,44 @@
                 });
               })
               .then(function () {
-                data.entries = [];
-                data.columns = [];
-                data.values = [];
-                data.totalEntries = 0;
-                if (!result.dataSource.columns.length) {
-                  return Promise.resolve();
-                }
+                resetData();
+
                 switch (data.dataSourceQuery.selectedModeIdx) {
                   case 0:
                   default:
                     // Plot the data as is
+                    if (!result.dataSource.columns.length) {
+                      return Promise.resolve();
+                    }
+
                     data.name = data.dataSourceQuery.columns.value;
                     result.dataSourceEntries.forEach(function (row, i) {
                       if (!row[data.dataSourceQuery.columns.category] && !row[data.dataSourceQuery.columns.value]) {
                         return;
                       }
+
+                      var value = parseInt(row[data.dataSourceQuery.columns.value], 10) || 0;
+
                       data.columns.push(row[data.dataSourceQuery.columns.category] || 'Category ' + (i+1));
-                      data.values.push(parseInt(row[data.dataSourceQuery.columns.value]) || 0);
-                      data.totalEntries++;
+                      data.values.push(value);
+                      data.totalEntries += value;
                     });
                     break;
                   case 1:
-                    // Summarise data
+                    // Summarize data
                     data.name = 'Count of ' + data.dataSourceQuery.columns.column;
-                      result.dataSourceEntries.forEach(function (row) {
-                        var value = row[data.dataSourceQuery.columns.column];
 
-                        if (Array.isArray(value)) {
-                          // Value is an array
-                          value.forEach(function (elem) {
-                            if (typeof elem === 'string') {
-                              elem = $.trim(elem);
-                            }
-
-                            if (!elem) {
-                              return;
-                            }
-
-                            data.entries.push(elem);
-                            if ( data.columns.indexOf(elem) === -1 ) {
-                              data.columns.push(elem);
-                              data.values[data.columns.indexOf(elem)] = 1;
-                            } else {
-                              data.values[data.columns.indexOf(elem)]++;
-                            }
-                          });
-                        } else {
-                          // Value is not an array
-                          if (typeof value === 'string') {
-                            value = $.trim(value);
-                          }
-
-                          if (!value) {
-                            return;
-                          }
-
-                          data.entries.push(value);
-                          if ( data.columns.indexOf(value) === -1 ) {
-                            data.columns.push(value);
-                            data.values[data.columns.indexOf(value)] = 1;
-                          } else {
-                            data.values[data.columns.indexOf(value)]++;
-                          }
-                        }
-                      });
+                    if (_.get(data, 'dataSourceQuery.query.aggregate')) {
+                      data.columns = _.map(result, '_id');
+                      data.values = _.map(result, 'count');
                       sortData();
-                      // SAVES THE TOTAL NUMBER OF ROW/ENTRIES
-                      data.totalEntries = data.entries.length;
+                      data.totalEntries = _.sum(data.values);
                       break;
+                    }
+
+                    // Aggregate feature isn't used, possibly because the columm name contains a '.'
+                    summarizeData(result);
+                    break;
                 }
 
                 return Promise.resolve();
