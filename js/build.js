@@ -251,7 +251,6 @@
       function setRefreshTimer() {
         if (refreshTimer) {
           clearTimeout(refreshTimer);
-          refreshTimer = null;
         }
 
         refreshTimer = setTimeout(refresh, refreshTimeout);
