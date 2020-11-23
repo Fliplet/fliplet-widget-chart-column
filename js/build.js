@@ -3,6 +3,8 @@
   window.ui = window.ui || {}
   ui.flipletCharts = ui.flipletCharts || {};
 
+  Fliplet.Chart = Fliplet.Widget.Namespace('chart');
+
   function init() {
     Fliplet.Widget.instance('chart-column', function (data) {
       var chartId = data.id;
@@ -15,6 +17,11 @@
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
       ];
       var chartInstance;
+
+      var chartReady;
+      var chartPromise = new Promise(function(resolve) {
+        chartReady = resolve;
+      });
 
       function resetData() {
         data.entries = [];
@@ -270,7 +277,7 @@
             var newColor = customColors
               ? customColors.values[colorKey]
               : Fliplet.Themes.Current.get(colorKey);
-            
+
             if (newColor) {
               colors[index] = newColor;
             }
@@ -424,6 +431,13 @@
       refreshData().then(drawChart).catch(function (error) {
         console.error(error);
         getLatestData();
+      });
+
+      Fliplet.Chart.add(chartPromise);
+
+      chartReady({
+        name: data.chartName,
+        refresh: getLatestData
       });
     });
   }
