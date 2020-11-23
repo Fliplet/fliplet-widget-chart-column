@@ -254,7 +254,7 @@
           refreshTimer = null;
         }
 
-        setTimeout(refresh, refreshTimeout);
+        refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
       Fliplet.Studio.onEvent(function(event) {
