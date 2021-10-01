@@ -1,0 +1,6 @@
+{
+  "extends": "fliplet",
+  "rules": {
+    "ui": "readonly"
+  }
+}
