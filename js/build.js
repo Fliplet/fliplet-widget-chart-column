@@ -25,7 +25,7 @@
         chartReady = resolve;
       });
 
-      $container.translate()
+      $container.translate();
 
       function resetData() {
         data.entries = [];
@@ -150,7 +150,7 @@
                       if (!row[data.dataSourceQuery.columns.category] && !row[data.dataSourceQuery.columns.value]) {
                         return;
                       }
-                      
+
                       data.columns.push(row[data.dataSourceQuery.columns.category] || T('widgets.chart.column.category') + ' ' + TN(i + 1));
                       data.values.push(parseInt(row[data.dataSourceQuery.columns.value]) || 0);
                       data.totalEntries++;
@@ -216,9 +216,9 @@
 
       function refreshChartInfo() {
         // Update total count
-        $container.find('.total').html(data.totalEntries);
+        $container.find('.total').html(TN(data.totalEntries));
         // Update last updated time
-        $container.find('.updatedAt').html(TD(new Date(), {format: 'LTS'}));
+        $container.find('.updatedAt').html(TD(new Date(), { format: 'LTS' }));
       }
 
       function refreshChart() {
