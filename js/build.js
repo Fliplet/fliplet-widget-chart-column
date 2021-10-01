@@ -150,8 +150,8 @@
                       if (!row[data.dataSourceQuery.columns.category] && !row[data.dataSourceQuery.columns.value]) {
                         return;
                       }
-                      var categoryNumber = TN(i + 1)
-                      data.columns.push(row[data.dataSourceQuery.columns.category] || T('widgets.chart.column.category') + ' ' + categoryNumber);
+                      
+                      data.columns.push(row[data.dataSourceQuery.columns.category] || T('widgets.chart.column.category') + ' ' + TN(i + 1));
                       data.values.push(parseInt(row[data.dataSourceQuery.columns.value]) || 0);
                       data.totalEntries++;
                     });
