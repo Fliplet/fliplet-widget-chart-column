@@ -1,7 +1,6 @@
 {
   "extends": "fliplet",
   "rules": {
-    "ui": "readonly",
-    "Modernizr": "readonly"
+    "ui": "readonly"
   }
 }
