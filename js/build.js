@@ -329,7 +329,7 @@
 
       function drawChart() {
         return new Promise(function (resolve, reject) {
-          var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);;
+          var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
 
           colors.forEach(function eachColor(color, index) {
             if (!Fliplet.Themes) {
