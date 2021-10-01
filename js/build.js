@@ -14,7 +14,6 @@
       var inheritColor2 = true;
       var refreshTimeout = 5000;
       var refreshTimer;
-      var updateDateFormat = 'hh:mm:ss a';
       var colors = [
         '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
@@ -25,6 +24,8 @@
       var chartPromise = new Promise(function(resolve) {
         chartReady = resolve;
       });
+
+      $container.translate()
 
       function resetData() {
         data.entries = [];
@@ -149,14 +150,15 @@
                       if (!row[data.dataSourceQuery.columns.category] && !row[data.dataSourceQuery.columns.value]) {
                         return;
                       }
-                      data.columns.push(row[data.dataSourceQuery.columns.category] || 'Category ' + (i+1));
+                      var categoryNumber = TN(i + 1)
+                      data.columns.push(row[data.dataSourceQuery.columns.category] || T('widgets.chart.column.category') + ' ' + categoryNumber);
                       data.values.push(parseInt(row[data.dataSourceQuery.columns.value]) || 0);
                       data.totalEntries++;
                     });
                     break;
                   case 1:
                     // Summarise data
-                    data.name = 'Count of ' + data.dataSourceQuery.columns.column;
+                    data.name = T('widgets.chart.column.count') + ' ' + data.dataSourceQuery.columns.column;
                       result.dataSourceEntries.forEach(function (row) {
                         var value = row[data.dataSourceQuery.columns.column];
 
@@ -216,7 +218,7 @@
         // Update total count
         $container.find('.total').html(data.totalEntries);
         // Update last updated time
-        $container.find('.updatedAt').html(moment().format(updateDateFormat));
+        $container.find('.updatedAt').html(TD(new Date(), {format: 'LTS'}));
       }
 
       function refreshChart() {
@@ -327,7 +329,7 @@
 
       function drawChart() {
         return new Promise(function (resolve, reject) {
-          var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
+          var customColors = [];
 
           colors.forEach(function eachColor(color, index) {
             if (!Fliplet.Themes) {
