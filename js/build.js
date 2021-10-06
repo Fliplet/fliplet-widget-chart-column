@@ -207,8 +207,19 @@
                         }
                       }
                     });
+
+                    return Fliplet.Hooks.run('afterChartSummary', {
+                      config: data,
+                      id: data.id,
+                      uuid: data.uuid,
+                      type: 'column',
+                      records: result
+                    }).then(function() {
                       sortData();
+
                       // SAVES THE TOTAL NUMBER OF ROW/ENTRIES
+                      data.totalEntries = _.sum(data.values);
+                    });
                 }
 
                 return Promise.resolve();
