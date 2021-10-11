@@ -158,7 +158,7 @@
                     break;
                   case 1:
                     // Summarise data
-                    data.name = T('widgets.chart.column.count') + ' ' + data.dataSourceQuery.columns.column;
+                    data.name = T('widgets.chart.column.count', { column: data.dataSourceQuery.columns.column });
                       result.dataSourceEntries.forEach(function (row) {
                         var value = row[data.dataSourceQuery.columns.column];
 

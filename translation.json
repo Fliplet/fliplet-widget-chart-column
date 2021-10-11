@@ -4,10 +4,10 @@
       "column": {
         "title": "Column Chart",
         "instruction": "Start configuring your component and the chart will appear here.",
-        "total": "<i class=\"fa fa-tachometer\"></i> Total<br><span class=\"total\">&mdash;</span>",
-        "updatedAt": "<i class=\"fa fa-clock-o\"></i> Last updated<br><span class=\"updatedAt\">&mdash;</span>",
+        "total": "Total",
+        "updatedAt": "Last updated",
         "category": "Category",
-        "count": "Count of"
+        "count": "Count of {{column}}"
       }
     }
   }
