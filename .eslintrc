@@ -1,6 +1,7 @@
 {
   "extends": "fliplet",
-  "rules": {
+  "globals": {
+    "Highcharts": "readonly",
     "ui": "readonly"
   }
 }
