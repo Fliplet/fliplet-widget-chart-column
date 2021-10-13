@@ -26,14 +26,6 @@
 
       $container.translate();
 
-      function resetData() {
-        data.entries = [];
-        data.totalEntries = 0;
-        data.columns = [];
-        data.values = [];
-        data.name = '';
-      }
-
       function sortData() {
         var sortMethod = 'alphabetical';
         var sortOrder = 'asc';
