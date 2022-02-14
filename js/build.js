@@ -532,15 +532,13 @@
     });
   }
 
-  Fliplet().then(function() {
-    var debounceLoad = _.debounce(init, 500, { leading: true });
+  var debounceLoad = _.debounce(init, 500, { leading: true });
 
-    Fliplet.Studio.onEvent(function(event) {
-      if (event.detail.event === 'reload-widget-instance') {
-        debounceLoad();
-      }
-    });
-
-    init();
+  Fliplet.Studio.onEvent(function(event) {
+    if (event.detail.event === 'reload-widget-instance') {
+      debounceLoad();
+    }
   });
+
+  init();
 })();
