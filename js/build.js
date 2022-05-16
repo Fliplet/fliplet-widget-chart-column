@@ -13,7 +13,6 @@
       var inheritColor2 = true;
       var refreshTimeout = 5000;
       var refreshTimer;
-      var updateDateFormat = 'hh:mm:ss a';
       var colors = [
         '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
@@ -87,7 +86,11 @@
         data.values = [];
 
         for (i = 0, l = objArr.length; i < l; i++) {
-          data.columns.push(objArr[i].column);
+          var column = sortMethod === 'timestamp'
+            ? TD(objArr[i].column, { format: 'l' }) || objArr[i].column
+            : objArr[i].column;
+
+          data.columns.push(column);
           data.values.push(objArr[i].value);
         }
       }
@@ -156,14 +159,14 @@
                         return;
                       }
 
-                      data.columns.push(row[data.dataSourceQuery.columns.category] || 'Category ' + (i + 1));
+                      data.columns.push(row[data.dataSourceQuery.columns.category] || T('widgets.charts.column.category', { count: i + 1 }));
                       data.values.push(parseInt(row[data.dataSourceQuery.columns.value], 10) || 0);
                       data.totalEntries++;
                     });
                     break;
                   case 1:
                     // Summarize data
-                    data.name = 'Count of ' + data.dataSourceQuery.columns.column;
+                    data.name = T('widgets.charts.column.title', { name: data.dataSourceQuery.columns.column });
                     result.dataSourceEntries.forEach(function(row) {
                       var value = row[data.dataSourceQuery.columns.column];
 
@@ -232,9 +235,9 @@
 
       function refreshChartInfo() {
         // Update total count
-        $container.find('.total').html(data.totalEntries);
+        $container.find('.total').html(TN(data.totalEntries));
         // Update last updated time
-        $container.find('.updatedAt').html(moment().format(updateDateFormat));
+        $container.find('.updatedAt').html(TD(new Date(), { format: 'LTS' }));
       }
 
       function refreshChart() {
@@ -346,7 +349,7 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
-          var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
+          var customColors = Fliplet.Themes && Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
 
           colors.forEach(function eachColor(color, index) {
             if (!Fliplet.Themes) {
@@ -433,12 +436,15 @@
             },
             tooltip: {
               enabled: !data.showDataValues,
-              headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-              pointFormat: [
-                '<tr><td style="color:{series.color};padding:0">{series.name}: </td>',
-                '<td style="padding:0"><b>{point.y}</b></td></tr>'
-              ].join(''),
-              footerFormat: '</table>',
+              headerFormat: '<b>{point.key}</b><br>',
+              pointFormatter: function() {
+                return [
+                  '<span style="color:' + this.series.color + ';padding:0;border:none">',
+                  T('widgets.charts.column.seriesName', { name: this.series.name }),
+                  '</span>',
+                  TN(this.y)
+                ].join('');
+              },
               shared: true,
               useHTML: true
             },
@@ -455,7 +461,9 @@
                 enabled: data.showDataValues,
                 color: '#333333',
                 align: 'center',
-                format: '{point.y}'
+                formatter: function() {
+                  return TN(this.y);
+                }
               },
               events: {
                 click: function() {
@@ -505,6 +513,8 @@
       function redrawChart() {
         ui.flipletCharts[chartId].reflow();
       }
+
+      $(this).translate();
 
       if (Fliplet.Env.get('interact')) {
         // TinyMCE removes <style> tags, so we've used a <script> tag instead,
