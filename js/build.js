@@ -376,7 +376,7 @@
           updateColors(colorIndex, eventDetail.color);
         }
       });
-4
+
       // Set new colors for chart
       function setThemeValues(themeData) {
         themeInstance.data.values = themeData.values;
