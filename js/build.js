@@ -1,6 +1,3 @@
-window.ui = window.ui || {};
-ui.flipletCharts = ui.flipletCharts || {};
-
 Fliplet.Chart = Fliplet.Widget.Namespace('chart');
 
 Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
@@ -33,6 +30,9 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
   Fliplet.Chart.add(chartPromise);
 
   function init() {
+    window.ui = window.ui || {};
+    ui.flipletCharts = ui.flipletCharts || {};
+
     function sortData() {
       var sortMethod = 'alphabetical';
       var sortOrder = 'asc';
@@ -573,6 +573,8 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
     Fliplet.Chart.add(chartPromise);
 
     chartReady({
+      id: data.id,
+      uuid: data.uuid,
       name: data.chartName,
       type: 'column',
       refresh: refresh
