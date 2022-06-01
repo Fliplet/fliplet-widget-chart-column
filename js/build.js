@@ -550,7 +550,6 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
     }
 
     $container.translate();
-    console.log($container);
 
     if (Fliplet.Env.get('interact')) {
       // TinyMCE removes <style> tags, so we've used a <script> tag instead,
