@@ -16,7 +16,6 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
     '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
   ];
   var chartInstance;
-
   var chartReady;
   var chartPromise = new Promise(function(resolve) {
     chartReady = resolve;
