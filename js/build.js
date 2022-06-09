@@ -1,8 +1,6 @@
 window.ui = window.ui || {};
 ui.flipletCharts = ui.flipletCharts || {};
 
-Fliplet.Chart = Fliplet.Chart || Fliplet.Widget.Namespace('chart');
-
 Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
   var chartId = data.id;
   var chartUuid = data.uuid;
