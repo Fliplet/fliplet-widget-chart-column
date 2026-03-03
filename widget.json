@@ -12,10 +12,10 @@
       "fliplet-core",
       "fliplet-datasources",
       "fliplet-studio-ui",
+      "fliplet-utils",
       "jquery",
       "handlebars",
-      "bootstrap",
-      "lodash"
+      "bootstrap"
     ],
     "assets": ["css/interface.css", "js/interface.js"]
   },
@@ -28,7 +28,7 @@
       "font-awesome",
       "fliplet-core",
       "fliplet-datasources",
-      "lodash"
+      "fliplet-utils"
     ],
     "assets": ["css/build.css", "js/build.js"]
   }

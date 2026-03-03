@@ -114,7 +114,7 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
           });
         })
         .then(function() {
-          if (_.isFunction(data.getData)) {
+          if (Fliplet.Utils.isFunction(data.getData)) {
             var response = data.getData();
 
             if (!(response instanceof Promise)) {
@@ -222,7 +222,9 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
                     sortData();
 
                     // SAVES THE TOTAL NUMBER OF ROW/ENTRIES
-                    data.totalEntries = _.sum(data.values);
+                    data.totalEntries = data.values.reduce(function(sum, val) {
+                      return sum + val;
+                    }, 0);
                   });
               }
 
@@ -545,7 +547,7 @@ Fliplet.Widget.instance('chart-column-1-1-0', function(data) {
   }
 
   Fliplet().then(function() {
-    var debounceLoad = _.debounce(init, 500, { leading: true });
+    var debounceLoad = Fliplet.Utils.debounce(init, 500, { leading: true });
 
     Fliplet.Studio.onEvent(function(event) {
       if (event.detail.event === 'reload-widget-instance') {
